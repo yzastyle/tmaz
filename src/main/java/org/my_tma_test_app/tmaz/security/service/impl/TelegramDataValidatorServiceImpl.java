@@ -6,12 +6,14 @@ import org.my_tma_test_app.tmaz.config.TelegramBotSourceProperties;
 import org.my_tma_test_app.tmaz.security.exception.ValidationException;
 import org.my_tma_test_app.tmaz.security.service.TelegramDataValidatorService;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
 
 
 @Data
@@ -37,21 +39,24 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
     }
 
     @SneakyThrows
-    public Map<String, String> validate(String initData) {
+    @Override
+    public void validate(String initData) {
         Map<String, String> data = parseInitData(initData);
 
+        validateInputParams(data);
+
+        String dataCheckString = makeDataCheckString(data);
+
+        String calcHash = calculateHash(dataCheckString);
         String receivedHash = data.get("hash");
-        if (receivedHash == null || receivedHash.isEmpty()) {
-            throw new ValidationException("Hash parameter is missing");
-        }
-        String authDate = data.get("auth_date");
-        if (authDate == null || authDate.isEmpty()) {
-            throw new ValidationException("auth_date parameter is missing");
+
+        if (!calcHash.equalsIgnoreCase(receivedHash)) {
+            System.out.println(String.format("Hash validation failed. Received: %s, Calculated: %s", receivedHash, calcHash));
+            throw new ValidationException("Invalid hash");
         }
 
-        validateAuthDate(Long.parseLong(authDate));
 
-        return parseInitData(initData);
+        System.out.println("dataCheckString: " + dataCheckString);
     }
 
     private Map<String, String> parseInitData(String initData) {
@@ -83,5 +88,43 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
         if (diff < 0) {
             throw new ValidationException("Auth date is in the future");
         }
+    }
+
+    private String makeDataCheckString(Map<String, String> data) {
+        String dataCheckString = data.entrySet().stream()
+                .filter(x -> !x.getKey().equalsIgnoreCase("hash"))
+                .sorted(Map.Entry.comparingByKey())
+                .map(x -> x.getKey() +"="+ x.getValue())
+                .collect(Collectors.joining("\n"));
+        return dataCheckString;
+    }
+
+    private String calculateHash(String dataCheckString) {
+        byte[] secretKey = hmacSha256(telegramDataCheckKey.getBytes(StandardCharsets.UTF_8),
+                token.getBytes(StandardCharsets.UTF_8));
+        byte[] calcHash = hmacSha256(secretKey, dataCheckString.getBytes(StandardCharsets.UTF_8));
+
+        return HexFormat.of().formatHex(calcHash);
+    }
+
+    @SneakyThrows
+    private byte[] hmacSha256(byte[] key, byte[] data) {
+        Mac mac = Mac.getInstance(hmacSha256);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, hmacSha256);
+        mac.init(secretKeySpec);
+        return mac.doFinal(data);
+    }
+
+    private void validateInputParams(Map<String, String> data) throws ValidationException {
+        String receivedHash = data.get("hash");
+        if (receivedHash == null || receivedHash.isEmpty()) {
+            throw new ValidationException("Hash parameter is missing");
+        }
+        String authDate = data.get("auth_date");
+        if (authDate == null || authDate.isEmpty()) {
+            throw new ValidationException("auth_date parameter is missing");
+        }
+
+        validateAuthDate(Long.parseLong(authDate));
     }
 }

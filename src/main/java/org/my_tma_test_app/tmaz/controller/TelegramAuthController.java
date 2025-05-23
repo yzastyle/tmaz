@@ -18,6 +18,7 @@ public class TelegramAuthController {
     @PostMapping("/auth")
     public void auth(@RequestBody InitData initData) {
         System.out.println("INIT DATA TEST:   " + initData.getInitData());
+        telegramDataValidatorService.validate(initData.getInitData());
     }
 
 }

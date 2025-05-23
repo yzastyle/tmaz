@@ -54,7 +54,6 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
         String calcHash = calculateHash(dataCheckString);
         String receivedHash = data.get("hash");
 
-        System.out.println("DEBUG ENABLED PARAMS: " + enabled);
         if (enabled && !calcHash.equalsIgnoreCase(receivedHash)) {
             System.out.printf("Hash validation failed. Received: %s, Calculated: %s%n", receivedHash, calcHash);
             throw new ValidationException("Invalid hash");

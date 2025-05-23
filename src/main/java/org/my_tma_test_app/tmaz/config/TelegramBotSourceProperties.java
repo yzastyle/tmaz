@@ -12,4 +12,5 @@ public class TelegramBotSourceProperties {
     private int authDateMaxAgeSeconds;
     private String telegramDataCheckKey;
     private String hmacSha256;
+    private boolean enabled;
 }

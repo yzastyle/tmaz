@@ -1,9 +1,12 @@
 package org.my_tma_test_app.tmaz.security.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.my_tma_test_app.tmaz.config.TelegramBotSourceProperties;
 import org.my_tma_test_app.tmaz.security.exception.ValidationException;
+import org.my_tma_test_app.tmaz.security.model.TelegramUser;
 import org.my_tma_test_app.tmaz.security.service.TelegramDataValidatorService;
 
 import javax.crypto.Mac;
@@ -25,9 +28,9 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
     private final long authDateMaxAgeSeconds;
     private final String telegramDataCheckKey;
     private final String hmacSha256;
+    private final boolean enabled;
 
-
-    //private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TelegramDataValidatorServiceImpl(TelegramBotSourceProperties telegramBotSourceProperties) {
         this.username = telegramBotSourceProperties.getUsername();
@@ -36,11 +39,12 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
         this.authDateMaxAgeSeconds = telegramBotSourceProperties.getAuthDateMaxAgeSeconds();
         this.telegramDataCheckKey = telegramBotSourceProperties.getTelegramDataCheckKey();
         this.hmacSha256 = telegramBotSourceProperties.getHmacSha256();
+        this.enabled = telegramBotSourceProperties.isEnabled();
     }
 
     @SneakyThrows
     @Override
-    public void validate(String initData) {
+    public Optional<TelegramUser> validate(String initData) {
         Map<String, String> data = parseInitData(initData);
 
         validateInputParams(data);
@@ -50,13 +54,13 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
         String calcHash = calculateHash(dataCheckString);
         String receivedHash = data.get("hash");
 
-        if (!calcHash.equalsIgnoreCase(receivedHash)) {
-            System.out.println(String.format("Hash validation failed. Received: %s, Calculated: %s", receivedHash, calcHash));
+        System.out.println("DEBUG ENABLED PARAMS: " + enabled);
+        if (enabled && !calcHash.equalsIgnoreCase(receivedHash)) {
+            System.out.printf("Hash validation failed. Received: %s, Calculated: %s%n", receivedHash, calcHash);
             throw new ValidationException("Invalid hash");
         }
 
-
-        System.out.println("dataCheckString: " + dataCheckString);
+        return Optional.of(parseUserData(data.get("user")));
     }
 
     private Map<String, String> parseInitData(String initData) {
@@ -67,6 +71,19 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
                 .collect(Collectors.toMap(p -> URLDecoder.decode(p[0], StandardCharsets.UTF_8),
                         p -> URLDecoder.decode(p[1], StandardCharsets.UTF_8)));
         return data;
+    }
+
+    @SneakyThrows
+    private TelegramUser parseUserData(String userInfo) {
+        JsonNode jsonNode = objectMapper.readTree(userInfo);
+
+        return TelegramUser.builder()
+                .firstName(jsonNode.get("first_name").asText())
+                .lastName(jsonNode.get("last_name").asText())
+                .photoUrl(jsonNode.get("photo_url").asText())
+                .username(jsonNode.get("username").asText())
+                .languageCode(jsonNode.get("language_code").asText())
+                .build();
     }
 
     @SneakyThrows

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main page</title>
+</head>
+<body>
+<h1>Main page</h1>
+
+<div>
+    <strong>First name:</strong>
+    <span th:text="${telegramUser.firstName}">[firstName]</span>
+</div>
+<div>
+    <strong>Last name:</strong>
+    <span th:text="${telegramUser.lastName}">[lastName]</span>
+</div>
+<div>
+    <strong>Username:</strong>
+    <a th:href="@{|https://t.me/${telegramUser.username}|}"
+       th:text="${telegramUser.username}">[username]</a>
+</div>
+<div>
+    <strong>Language:</strong>
+    <span th:text="${telegramUser.languageCode}">[languageCode]</span>
+</div>
+<div>
+    <strong>Photo:</strong><br/>
+    <img th:src="${telegramUser.photoUrl}"
+         alt="User photo"
+         style="max-width: 150px; max-height: 150px;"/>
+</div>
+</body>
+</html>

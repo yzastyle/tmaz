@@ -6,6 +6,8 @@ COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY src src
 
+RUN chmod +x ./gradlew
+
 RUN ./gradlew clean build -x test
 
 RUN mkdir -p /tmazapp

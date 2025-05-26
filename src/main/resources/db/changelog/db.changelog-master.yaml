@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: devon
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: language_code
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: photo_url
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: date_create
+                  type: timestamp
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false

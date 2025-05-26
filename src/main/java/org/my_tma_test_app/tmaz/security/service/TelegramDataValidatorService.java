@@ -1,7 +1,7 @@
 package org.my_tma_test_app.tmaz.security.service;
 
 
-import org.my_tma_test_app.tmaz.security.model.TelegramUser;
+import org.my_tma_test_app.tmaz.model.TelegramUser;
 
 import java.util.Optional;
 

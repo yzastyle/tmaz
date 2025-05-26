@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.my_tma_test_app.tmaz.config.TelegramBotSourceProperties;
 import org.my_tma_test_app.tmaz.security.exception.ValidationException;
-import org.my_tma_test_app.tmaz.security.model.TelegramUser;
+import org.my_tma_test_app.tmaz.model.TelegramUser;
 import org.my_tma_test_app.tmaz.security.service.TelegramDataValidatorService;
 
 import javax.crypto.Mac;
@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Data
@@ -77,6 +76,7 @@ public class TelegramDataValidatorServiceImpl implements TelegramDataValidatorSe
         JsonNode jsonNode = objectMapper.readTree(userInfo);
 
         return TelegramUser.builder()
+                .id(jsonNode.get("id").asLong())
                 .firstName(jsonNode.get("first_name").asText())
                 .lastName(jsonNode.get("last_name").asText())
                 .photoUrl(jsonNode.get("photo_url").asText())

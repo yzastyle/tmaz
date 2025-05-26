@@ -1,18 +1,22 @@
-package org.my_tma_test_app.tmaz.security.model;
+package org.my_tma_test_app.tmaz.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "users")
 public class TelegramUser {
 
     @JsonProperty("id")
+    @Id
     private Long id;
 
     @JsonProperty("first_name")
@@ -26,12 +30,6 @@ public class TelegramUser {
 
     @JsonProperty("language_code")
     private String languageCode;
-
-    @JsonProperty("is_bot")
-    private Boolean isBot;
-
-    @JsonProperty("is_premium")
-    private Boolean isPremium;
 
     @JsonProperty("photo_url")
     private String photoUrl;

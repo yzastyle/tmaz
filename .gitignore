@@ -53,7 +53,6 @@ out/
 !.env.template
 
 # Application properties with secrets
-application-local.yml
-application-dev.yml
-application-prod.yml
 application.yml
+application-docker.yml
+docker-compose.yml

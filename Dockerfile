@@ -6,10 +6,6 @@ COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY src src
 
-RUN chmod +x ./gradlew
-
-RUN ./gradlew clean build -x test
-
 RUN mkdir -p /tmazapp
 COPY build/libs/*.jar /tmazapp/app.jar
 COPY ./entrypoint.sh /tmazapp/entrypoint.sh

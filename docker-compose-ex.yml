@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+    postgres-db:
+        image: postgres:14
+        container_name: tmaz_dev
+        environment:
+            POSTGRES_USER: tmaz
+            POSTGRES_PASSWORD: tmaz
+            POSTGRES_DB: tmazdb
+        ports:
+            - "5432:5432"
+        networks:
+            - my-docker-network-test
+        restart: always    
+    tmaz:
+        image: tma-app:latest
+        container_name: tmaz
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        ports:
+          - "8080:8080"
+        depends_on:
+          - postgres-db
+        networks:
+          - my-docker-network-test
+        environment:
+            SPRING_PROFILES_ACTIVE: docker
+        restart: always
+    ngrok:
+        image: ngrok/ngrok:latest
+        container_name: tmaz_ngrok
+        environment:
+            NGROK_AUTHTOKEN: your_ngrok_authtoken
+        command:
+            - "http"
+            - "tmaz:8080"
+            - "--log=stdout"
+            - "--log-level=info"
+        ports:
+            - "4040:4040"
+        depends_on:
+            - tmaz
+        networks:
+            - my-docker-network-test
+        restart: unless-stopped
+networks:
+    my-docker-network-test:
+        driver: bridge
+                    
+        

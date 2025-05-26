@@ -1,0 +1,21 @@
+telegram:
+  bot:
+    token: your_telegram_bot_token
+    username: your_telegram_bot_username
+    auth-date-check-enabled: true
+    auth-date-max-age-seconds: 300
+    telegram-data-check-key: "WebAppData"
+    hmac-sha256: "HmacSHA256"
+    enabled: true
+spring:
+  security:
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://tmaz_dev:5432/tmazdb
+    username: tmaz
+    password: tmaz
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+jwt:
+  secret: jajsdj0u203jd20j2dj2dj20iejd0j0dje0jd20jd20wjd20wjd20ewjd20dj20dj20dj20edj2e0dj20edj20dj20dj20jd2
